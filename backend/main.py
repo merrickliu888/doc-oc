@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
-from request_body import GithubRequest
+from request_body import GithubRequest, ChatRequest
 from utils.github_contents import load_repo, get_files
 from utils.embedding import embed_files
 from utils.data_insertion import upsert_files
+from utils.data_querying import chat
 
 import os
 import fastapi
@@ -50,8 +51,14 @@ async def index_github_repo(body: GithubRequest):
     
 # Post request for chatting with LLM
 @app.post("/api/chat")
-async def chat_with_llm(message: str):
+async def chat_with_llm(body: ChatRequest):
     """
     Chat with the Language Model
     """
-    pass
+    prompt = body.prompt
+    messages = body.messages
+    try:
+        chat(prompt, messages)
+        return {"message": "Chat successful"}
+    except Exception as e:
+        return {"message": str(e)} 
