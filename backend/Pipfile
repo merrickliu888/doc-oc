@@ -8,6 +8,9 @@ requests = "*"
 pygithub = "*"
 fastapi = {extras = ["all"], version = "*"}
 langchain = "*"
+pinecone-client = "*"
+cohere = "*"
+supabase = "*"
 
 [dev-packages]
 
