@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 requests = "*"
 pygithub = "*"
+fastapi = {extras = ["all"], version = "*"}
+langchain = "*"
 
 [dev-packages]
 
