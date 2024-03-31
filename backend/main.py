@@ -8,6 +8,7 @@ from utils.data_querying import chat, db_contains_repo
 import os
 import fastapi
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pinecone import Pinecone
 from cohere import Client
 from github import Github
@@ -21,8 +22,22 @@ pinecone_api_key = os.environ.get('PINECONE_API_KEY')
 supabase_url = os.environ.get('SUPABASE_URL')
 supabase_key = os.environ.get('SUPABASE_API_KEY')
 
-# Creating a FastAPI app and initializing api clients
+# Creating and configuring FastAPI app
 app = fastapi.FastAPI()
+
+origins = [
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Creating external api clients
 co = Client(cohere_api_key)
 ghub = Github(github_token)
 pc = Pinecone(api_key=pinecone_api_key)
@@ -30,7 +45,7 @@ sb = create_client(supabase_url, supabase_key)
 
 
 # Post Request for indexing github repo
-@app.post("/api/index")
+@app.post("/api/index-repo")
 async def index_github_repo(body: GithubRequest):
     """
     Index a github repository
@@ -64,6 +79,6 @@ async def chat_with_llm(body: ChatRequest):
     prompt = body.prompt
     messages = body.messages
     try:
-        return StreamingResponse(chat(repo_path, prompt, messages, sb, k=5))
+        return StreamingResponse(chat(repo_path, prompt, messages, sb, k=5), media_type="text/plain")
     except Exception as e:
         return {"message": str(e)} 

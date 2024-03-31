@@ -1,4 +1,5 @@
 # Contains function to query index, database and interact with LLM (Gemini)
+
 from langchain_pinecone import PineconeVectorStore  
 from langchain_cohere import ChatCohere, CohereEmbeddings
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
