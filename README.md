@@ -1,6 +1,17 @@
-# doc-oc
+<div align="center">
+  <img src="https://raw.githubusercontent.com/merrickliu888/doc-oc/main/frontend/public/doc-oc-logo.png" alt="Dot" width="75">  
+  <h1>Doc Oc<br> Talk to your codebase</h1>
+  <br>
+</div>
 
-Talk to your codebase.
+![Doc Oc Example](https://raw.githubusercontent.com/merrickliu888/doc-oc/main/frontend/public/doc-oc-example.png)
+
+### Implementation
+
+-   RAG enhanced LLM that utilizes an indexed Github repo as its content store.
+-   Used Cohere's `embed-english-v3.0` embedding model to create embeddings for repository files, and for user query.
+-   Used Pinecone as vectorstore and Supabase to store actual file contents.
+-   Used Cohere's `command-r` as LLM that recieves context.
 
 ### How to run:
 
