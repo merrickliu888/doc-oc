@@ -20,7 +20,8 @@ def upsert_files(pc, index, sb, files):
             'values': files[i].embedding,
             'metadata': {
                 'name': files[i].name,
-                'path': files[i].path
+                'path': files[i].path,
+                'db_id': str(res[1][i]['id'])
             }
         })
 

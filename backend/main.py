@@ -7,6 +7,7 @@ from utils.data_querying import chat, db_contains_repo
 
 import os
 import fastapi
+from fastapi.responses import StreamingResponse
 from pinecone import Pinecone
 from cohere import Client
 from github import Github
@@ -36,7 +37,7 @@ async def index_github_repo(body: GithubRequest):
     """
     try:
         if (db_contains_repo(sb, body.repo_path)):
-            return {"message": "Repository already indexed"}
+            return {"message": "Repository already indexed."}
         
         # Retrieving files from the repository
         repo = load_repo(ghub, body.repo_path)
@@ -48,9 +49,10 @@ async def index_github_repo(body: GithubRequest):
         # Upserting the files
         upsert_files(pc, "doc-oc", sb, files)
 
-        return {"message": "Indexing successful"}
+        return {"message": "Indexing successful."}
     except Exception as e:
         return {"message": str(e)}
+    
     
 # Post request for chatting with LLM
 @app.post("/api/chat")
@@ -58,10 +60,10 @@ async def chat_with_llm(body: ChatRequest):
     """
     Chat with the Language Model
     """
+    repo_path = body.repo_path
     prompt = body.prompt
     messages = body.messages
     try:
-        chat(prompt, messages)
-        return {"message": "Chat successful"}
+        return StreamingResponse(chat(repo_path, prompt, messages, sb, k=5))
     except Exception as e:
         return {"message": str(e)} 

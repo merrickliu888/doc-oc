@@ -30,18 +30,3 @@ class File:
         self.path = path
         self.content = content
         self.embedding = None
-
-# if __name__ == '__main__':
-#     # Loading env variables
-#     from dotenv import load_dotenv
-#     load_dotenv()
-#     import os
-#     from github import Github
-#     github_token = os.environ.get('GITHUB_TOKEN')
-#     g = Github(github_token)
-
-#     repo = load_repo(g, "merrickliu888/doc-oc")
-#     files = get_files("merrickliu888/doc-oc", repo, "")
-#     for file in files:
-#         print(file.content)
-#         print("----------------------------------------------------")

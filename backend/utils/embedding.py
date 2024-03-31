@@ -36,28 +36,3 @@ def embed_files(cohere_client, files, batch_size=10):
 
         for i in range(len(batch)):
             batch[i].embedding = response.embeddings[i]
-
-
-# if __name__ == '__main__':
-#     # Loading env variables
-#     from dotenv import load_dotenv
-#     import os
-#     load_dotenv()
-#     cohere_api_key = os.environ.get('COHERE_API_KEY')
-
-#     # Creating a Cohere client
-#     from github_contents import File
-#     import cohere
-#     co = cohere.Client(cohere_api_key)
-
-#     # Testing embedding
-#     files = [
-#         File("repo", "file1", "path1", "content1"),
-#         File("repo", "file2", "path2", "content2"),
-#         File("repo", "file3", "path3", "content3"),
-#     ]
-
-#     embed_files(co, files)
-#     for f in files:
-#         print(f.embedding)
-#         print("----------------------------------------------------")

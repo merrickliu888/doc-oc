@@ -11,6 +11,9 @@ langchain = "*"
 pinecone-client = "*"
 cohere = "*"
 supabase = "*"
+langchain-community = "*"
+langchain-cohere = "*"
+langchain-pinecone = "*"
 
 [dev-packages]
 
