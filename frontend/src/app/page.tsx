@@ -2,9 +2,14 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { set } from "mongoose";
+import ReactMarkdown from "react-markdown";
+
+interface Message {
+    prompt: string;
+    response: string;
+}
 
 export default function Home() {
     // State
@@ -109,6 +114,7 @@ export default function Home() {
                         {loading ? "Loading..." : "Index Repo"}
                     </Button>
                 </div>
+
                 <div className="rounded-lg bg-white p-6 shadow">
                     <div className="flex items-center space-x-2">
                         <Avatar>
@@ -122,7 +128,7 @@ export default function Home() {
                         </div>
                     </div>
                     <div className="mt-4 mb-6 border-l-4 border-cyan-300 pl-4 text-sm text-gray-900">
-                        {answer}
+                        <ReactMarkdown children={answer} />
                     </div>
                     <div className="mt-6">
                         <Input
