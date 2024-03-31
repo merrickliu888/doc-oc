@@ -1,3 +1,5 @@
+# Contains functions to load a repository from github and get all the files in the repository
+
 def load_repo(g, repo_path):
     """
     Load a repository from github

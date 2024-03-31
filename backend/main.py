@@ -3,7 +3,7 @@ from request_body import GithubRequest, ChatRequest
 from utils.github_contents import load_repo, get_files
 from utils.embedding import embed_files
 from utils.data_insertion import upsert_files
-from utils.data_querying import chat
+from utils.data_querying import chat, db_contains_repo
 
 import os
 import fastapi
@@ -35,6 +35,9 @@ async def index_github_repo(body: GithubRequest):
     Index a github repository
     """
     try:
+        if (db_contains_repo(sb, body.repo_path)):
+            return {"message": "Repository already indexed"}
+        
         # Retrieving files from the repository
         repo = load_repo(ghub, body.repo_path)
         files = get_files(body.repo_path, repo, "")

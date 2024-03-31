@@ -1,3 +1,5 @@
+# Embedding funtions for files and queries using the Cohere API
+
 def batch_list(lst, batch_size):
     """
     Batch a list into smaller lists of size batch_size
