@@ -58,3 +58,15 @@ def db_contains_repo(sb, repo_path):
     """
     res = sb.table('github_repos').select('repo_path').eq('repo_path', repo_path).execute()
     return len(res.data) > 0
+
+def parse_messages(unparsed_messages):
+    """
+    Parse the messages
+    """
+    messages = [SystemMessage(content="You are a helpful code assistant.")]
+    for message in unparsed_messages:
+        if message['type'] == 'human':
+            messages.append(HumanMessage(content=message['content']))
+        elif message['type'] == 'ai':
+            messages.append(AIMessage(content=message['content']))
+    return messages

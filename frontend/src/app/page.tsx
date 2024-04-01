@@ -2,13 +2,14 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
-import React, { useState } from "react";
+import Message from "@/components/ui/message";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 
 interface Message {
-    prompt: string;
-    response: string;
+    type: "human" | "ai";
+    content: string;
 }
 
 export default function Home() {
@@ -21,6 +22,10 @@ export default function Home() {
         "How can I help you today?"
     );
     const [loading, set_loading] = useState(false);
+    const [messages, set_messages] = useState<Message[]>([]);
+    const add_message = (type: "human" | "ai", content: string) => {
+        set_messages((messages) => [...messages, { type, content }]);
+    };
 
     // Index Repo Request
     const index_repo = async () => {
@@ -39,9 +44,11 @@ export default function Home() {
     };
 
     // Query LLM Request
+    const update_promise_ref = useRef([]); // Keeps track of updates
     const query_llm = async () => {
         try {
             set_answer(""); // Clearing answer
+            add_message("human", prompt); // Add prompt to messages
             const response = await fetch("http://127.0.0.1:8000/api/chat", {
                 method: "POST",
                 headers: {
@@ -50,7 +57,7 @@ export default function Home() {
                 body: JSON.stringify({
                     repo_path: curr_repo_path,
                     prompt,
-                    messages: [],
+                    messages,
                 }),
             });
             set_prompt(""); // Clearing prompt
@@ -60,13 +67,31 @@ export default function Home() {
                 throw new Error(`HTTP error: ${response.status}`);
             }
 
+            // Handling streaming
             const reader = response.body.getReader();
             const text_decoder = new TextDecoder("utf-8");
+            update_promise_ref.current = [];
             while (true) {
                 const { done, value } = await reader.read();
-                if (done) break;
-                set_answer((answer) => answer + text_decoder.decode(value)); // Update the answer state
+                if (done) {
+                    break;
+                }
+                let update_promise = new Promise((resolve) => {
+                    set_answer((curr_answer) => {
+                        const updated_answers =
+                            curr_answer + text_decoder.decode(value);
+                        resolve(updated_answers); // Resolve with the updated state
+                        return updated_answers;
+                    });
+                });
+
+                update_promise_ref.current.push(update_promise);
             }
+
+            Promise.all(update_promise_ref.current).then((updatedAnswers) => {
+                const finalAnswer = updatedAnswers[updatedAnswers.length - 1];
+                add_message("ai", finalAnswer);
+            });
         } catch (error) {
             alert("Error querying LLM.");
             console.error(error);
@@ -109,13 +134,30 @@ export default function Home() {
                         placeholder="owner/repo"
                         value={repo_path}
                         onChange={(e) => set_repo_path(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                index_repo();
+                            }
+                        }}
                     />
                     <Button onClick={index_repo}>
                         {loading ? "Loading..." : "Index Repo"}
                     </Button>
                 </div>
 
-                <div className="rounded-lg bg-white p-6 shadow">
+                {messages
+                    .slice(0, -2)
+                    .map(
+                        (message, index) =>
+                            index % 2 === 0 && (
+                                <Message
+                                    submitted_prompt={message.content}
+                                    answer={messages[index + 1].content}
+                                />
+                            )
+                    )}
+
+                <div className="rounded-lg bg-white p-6 shadow mb-6">
                     <div className="flex items-center space-x-2">
                         <Avatar>
                             <AvatarImage alt="Doc Oc" src="/doc-oc-logo.png" />
@@ -127,20 +169,26 @@ export default function Home() {
                             </div>
                         </div>
                     </div>
-                    <div className="mt-4 mb-6 border-l-4 border-cyan-300 pl-4 text-sm text-gray-900">
+                    <div className="mt-4 mb-4 border-l-4 border-cyan-300 pl-4 text-sm text-gray-900">
                         <ReactMarkdown children={answer} />
                     </div>
-                    <div className="mt-6">
+                </div>
+
+                <div className="rounded-lg sticky bottom-3 left-0 w-full p-3 bg-white shadow z-10 border border-gray-400">
+                    <div className="flex items-center gap-4">
                         <Input
                             className="w-full"
                             placeholder="Enter a prompt here"
                             value={prompt}
                             onChange={(e) => set_prompt(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    query_llm();
+                                }
+                            }}
                         />
+                        <Button onClick={query_llm}>Submit</Button>
                     </div>
-                    <Button className="mt-4" onClick={query_llm}>
-                        Submit
-                    </Button>
                 </div>
             </div>
         </div>

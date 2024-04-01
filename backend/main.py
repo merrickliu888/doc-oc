@@ -3,7 +3,7 @@ from request_body import GithubRequest, ChatRequest
 from utils.github_contents import load_repo, get_files
 from utils.embedding import embed_files
 from utils.data_insertion import upsert_files
-from utils.data_querying import chat, db_contains_repo
+from utils.data_querying import chat, db_contains_repo, parse_messages
 
 import os
 import fastapi
@@ -77,7 +77,8 @@ async def chat_with_llm(body: ChatRequest):
     """
     repo_path = body.repo_path
     prompt = body.prompt
-    messages = body.messages
+    unparsed_messages = body.messages
+    messages = parse_messages(unparsed_messages)
     try:
         return StreamingResponse(chat(repo_path, prompt, messages, sb, k=5), media_type="text/plain")
     except Exception as e:
