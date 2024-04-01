@@ -1,7 +1,5 @@
 # Contains functions to load a repository from github and get all the files in the repository
 
-ignored_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.pyc', '.otf']
-
 def load_repo(g, repo_path):
     """
     Load a repository from github
@@ -17,14 +15,11 @@ def get_files(repo_path, repo, path):
         if item.type == "dir":
             files.extend(get_files(repo_path, repo, f"{path}/{item.name}"))
         elif item.type == 'file':
-            if any(item.name.endswith(ext) for ext in ignored_extensions):
-                continue
-            
             try:
                 decoded_content = item.decoded_content.decode()
             except Exception as e:
-                print(e)
-                decoded_content = ""
+                print(f"Error decoding content of {item.name}: {e}")
+                continue
 
             file = File(repo_path, item.name, item.path, decoded_content)
             files.append(file)
