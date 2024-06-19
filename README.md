@@ -38,4 +38,4 @@ To run frontend:
 
     -   `files` - Stores data related to files
 
-        -   Columns: `id` (PK, int8), `repo_id` (FK, int8), `name` (varchar), `path` (varchar), `content` (text), `embedding` (float8[])
+        -   Columns: `id` (PK, int8), `repo_id` (FK, int8), `name` (varchar), `path` (varchar), `content` (text)
